@@ -1,103 +1,89 @@
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-import logging, os, asyncio, aiomysql, traceback, locale
-import matplotlib.pyplot as plt
-from io import BytesIO
 
-token=os.environ["TB_TOKEN"]
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes
+import paho.mqtt.publish as publish
+import logging, os
+import ssl 
+
+TOKEN = os.environ["TB_TOKEN"]
+
+MQTT_SERVER = "mosquitto"
+MQTT_PORT = 8883 
+MQTT_USER = os.environ.get("MQTT_USR", "root")
+MQTT_PASS = os.environ.get("MQTT_PASS", "iot2026")
+ID_PICO = "ID_DISPOSITIVO" 
 
 logging.basicConfig(format='%(asctime)s - TelegramBot - %(levelname)s - %(message)s', level=logging.INFO)
-logging.getLogger("httpx").setLevel(logging.WARNING)
+
+def enviar_mqtt(subtopico, payload):
+    topico = f"{ID_PICO}/{subtopico}"
+    auth = {'username': MQTT_USER, 'password': MQTT_PASS}
+    
+    tls_config = {
+        'ca_certs': None,
+        'tls_version': ssl.PROTOCOL_TLS_CLIENT,
+        'cert_reqs': ssl.CERT_NONE 
+    }
+    
+    try:
+        publish.single(
+            topic=topico,
+            payload=str(payload),
+            hostname=MQTT_SERVER,
+            port=MQTT_PORT,
+            auth=auth,
+            tls=tls_config 
+        )
+        logging.info(f"Publicado MQTTS OK -> {topico}: {payload}")
+        return True
+    except Exception as e:
+        logging.error(f"Error de red/TLS: {e}")
+        return False
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.info("se conectó: " + str(update.message.from_user.id))
-    if update.message.from_user.first_name:
-        nombre=update.message.from_user.first_name
-    else:
-        nombre=""
-    if update.message.from_user.last_name:
-        apellido=update.message.from_user.last_name
-    else:
-        apellido=""
-    kb = [["temperatura"],["humedad"],["gráfico temperatura"],["gráfico humedad"]]
-    await context.bot.send_message(update.message.chat.id, text="Bienvenido al Bot "+ nombre + " " + apellido,reply_markup=ReplyKeyboardMarkup(kb))
+    mensaje = (
+        f"Control de Termostato.\n\n"
+        "/setpoint <valor> - Cambia temp. de corte\n"
+        "/periodo <seg> - Tiempo entre mediciones\n"
+        "/modo <auto|manual> - Cambia el modo\n"
+        "/rele <on|off> - Control manual\n"
+        "/destello - Parpadea el LED\n"
+    )
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=mensaje)
 
-async def acercade(update: Update, context):
-    await context.bot.send_message(update.message.chat.id, text="Este bot fue creado para el curso de IoT FIO")
+async def cmd_setpoint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        enviar_mqtt("setpoint", context.args[0])
+        await update.message.reply_text(f"Setpoint: {context.args[0]}°C")
 
-async def kill(update: Update, context):
-    logging.info(context.args)
-    if context.args and context.args[0] == '@e':
-        await context.bot.send_animation(update.message.chat.id, "CgACAgEAAxkBAAICI2oYKdAqh4YkBCLifiVJZlRXy74-AAKUBwACZ_PBRLgV_qZf-9kGOwQ")
-        await asyncio.sleep(6)
-        await context.bot.send_message(update.message.chat.id, text="¡¡¡Ahora estan todos muertos!!!")
-    else:
-        await context.bot.send_message(update.message.chat.id, text="☠️ ¡¡¡Esto es muy peligroso!!! ☠️")
-        
-async def medicion(update: Update, context):
-    logging.info(update.message.text)
-    sql = f"SELECT timestamp, {update.message.text} FROM mediciones ORDER BY timestamp DESC LIMIT 1"
-    conn = await aiomysql.connect(host=os.environ["MARIADB_SERVER"], port=3306,
-                                    user=os.environ["MARIADB_USER"],
-                                    password=os.environ["MARIADB_USER_PASS"],
-                                    db=os.environ["MARIADB_DB"])
-    async with conn.cursor() as cur:
-        await cur.execute(sql)
-        r = await cur.fetchone()
-        if update.message.text == 'temperatura':
-            unidad = 'ºC'
-        else:
-            unidad = '%'
-        await context.bot.send_message(update.message.chat.id,
-                                    text="La última {} es de {} {},\nregistrada a las {:%H:%M:%S %d/%m/%Y}"
-                                    .format(update.message.text, str(r[1]).replace('.',','), unidad, r[0]))
-        logging.info("La última {} es de {} {}, medida a las {:%H:%M:%S %d/%m/%Y}".format(update.message.text, r[1], unidad, r[0]))
-    conn.close()
+async def cmd_periodo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        enviar_mqtt("periodo", context.args[0])
+        await update.message.reply_text(f"Periodo: {context.args[0]}s")
 
-async def graficos(update: Update, context):
-    logging.info(update.message.text)
-    sql = f"""SELECT timestamp, {update.message.text.split()[1]}
-            FROM (
-                SELECT timestamp, {update.message.text.split()[1]},
-                    ROW_NUMBER() OVER (ORDER BY id) AS rn
-                FROM mediciones
-                WHERE timestamp >= NOW() - INTERVAL 1 DAY
-                AND sensor_id LIKE 'sensor_1'
-            ) AS t
-            WHERE rn % 2 = 0
-            ORDER BY timestamp;"""
-    conn = await aiomysql.connect(host=os.environ["MARIADB_SERVER"], port=3306,
-                                    user=os.environ["MARIADB_USER"],
-                                    password=os.environ["MARIADB_USER_PASS"],
-                                    db=os.environ["MARIADB_DB"])
-    async with conn.cursor() as cur:
-        await cur.execute(sql)
-        filas = await cur.fetchall()
+async def cmd_modo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        enviar_mqtt("modo", context.args[0].lower())
+        await update.message.reply_text(f"Modo: {context.args[0]}")
 
-        fig, ax = plt.subplots(figsize=(7, 4))
-        fecha,var=zip(*filas)
-        ax.plot(fecha,var)
-        ax.grid(True, which='both')
-        ax.set_title(update.message.text, fontsize=14, verticalalignment='bottom')
-        ax.set_xlabel('fecha')
-        ax.set_ylabel('unidad')
+async def cmd_rele(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        enviar_mqtt("rele", context.args[0].lower())
+        await update.message.reply_text(f"Relé: {context.args[0]}")
 
-        buffer = BytesIO()
-        fig.tight_layout()
-        fig.savefig(buffer, format='png')
-        plt.close()
-        buffer.seek(0)
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
-        buffer.close()
-    conn.close()
+async def cmd_destello(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    enviar_mqtt("destello", "1")
+    await update.message.reply_text("Destello enviado.")
 
 def main():
-    application = Application.builder().token(token).build()
+    application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('acercade', acercade))
-    application.add_handler(CommandHandler('kill', kill))
-    application.add_handler(MessageHandler(filters.Regex("^(temperatura|humedad)$"), medicion))
-    application.add_handler(MessageHandler(filters.Regex("^(gráfico temperatura|gráfico humedad)$"), graficos))
+    application.add_handler(CommandHandler('setpoint', cmd_setpoint))
+    application.add_handler(CommandHandler('periodo', cmd_periodo))
+    application.add_handler(CommandHandler('modo', cmd_modo))
+    application.add_handler(CommandHandler('rele', cmd_rele))
+    application.add_handler(CommandHandler('destello', cmd_destello))
     application.run_polling()
 
 if __name__ == '__main__':

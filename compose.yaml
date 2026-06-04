@@ -107,10 +107,11 @@ services:
     environment:
       - TZ=America/Argentina/Buenos_Aires 
       - TB_TOKEN=${TB_TOKEN}
-      - MARIADB_SERVER=${MARIADB_SERVER}
-      - MARIADB_USER=${MARIADB_USER}
-      - MARIADB_USER_PASS=${MARIADB_USER_PASS}
-      - MARIADB_DB=${MARIADB_DB}
+      - DOMINIO=${DOMINIO}
+      - PUERTO_MQTTS=${PUERTO_MQTTS}
+      - MQTT_USR=${MQTT_USR}
+      - MQTT_PASS=${MQTT_PASS}
+      - ID_PICO=${ID_PICO}
     restart: unless-stopped
     depends_on:
       - mariadb
