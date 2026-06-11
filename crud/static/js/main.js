@@ -1,5 +1,4 @@
-
-const btnDelete= document.querySelectorAll('.btn-borrar');
+const btnDelete = document.querySelectorAll('.btn-borrar');
 if(btnDelete) {
   const btnArray = Array.from(btnDelete);
   btnArray.forEach((btn) => {
@@ -10,27 +9,28 @@ if(btnDelete) {
     });
   })
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     const selectorTema = document.getElementById('selectorTema');
+    const themeStylesheet = document.getElementById('theme-stylesheet');
 
-    // Si el selector no existe en el DOM (usuario no logueado), detenemos la ejecución
-    if (!selectorTema) return;
+    if (!selectorTema || !themeStylesheet) return;
 
-    // 1. Obtener el tema guardado en localStorage o usar 'light' por defecto
-    const temaActual = localStorage.getItem('tema-crud') || 'light';
+    // 1. Obtener el tema guardado o usar 'cosmo' por defecto
+    const temaActual = localStorage.getItem('tema-crud') || 'cosmo';
 
-    // 2. Aplicar el tema al abrir la página y sincronizar el selector
-    document.documentElement.setAttribute('data-theme', temaActual);
+    // 2. Aplicar el tema (cambiar la URL del CSS) al abrir la página
+    themeStylesheet.href = `https://bootswatch.com/5/${temaActual}/bootstrap.min.css`;
     selectorTema.value = temaActual;
 
-    // 3. Escuchar cuando el usuario cambie la opción en el selector desplegable
+    // 3. Escuchar cambios en el selector
     selectorTema.addEventListener('change', function() {
         const temaSeleccionado = this.value;
         
-        // Cambiar el atributo en el HTML
-        document.documentElement.setAttribute('data-theme', temaSeleccionado);
+        // Cambiar el href del link al nuevo tema de Bootswatch
+        themeStylesheet.href = `https://bootswatch.com/5/${temaSeleccionado}/bootstrap.min.css`;
         
-        // Guardar la nueva preferencia en el navegador
+        // Guardar la nueva preferencia
         localStorage.setItem('tema-crud', temaSeleccionado);
     });
 });

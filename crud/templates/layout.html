@@ -4,35 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>FLASK CRUD 1.6</title>
-  <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css"> 
-  
-  <style>
-    /* Variables para el Tema Claro (por defecto) */
-    :root {
-        --bg-color: #ffffff;
-        --text-color: #212529;
-        --nav-bg: #f8f9fa;
-    }
-
-    /* Variables para el Tema Oscuro */
-    [data-theme="dark"] {
-        --bg-color: #121212;
-        --text-color: #e0e0e0;
-        --nav-bg: #1f1f1f;
-    }
-
-    /* Aplicar las variables al cuerpo de la página */
-    body {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    
-    /* Aplicar a la barra de navegación */
-    .navbar {
-        background-color: var(--nav-bg) !important;
-    }
-  </style>
+  <link id="theme-stylesheet" rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css"> 
 </head>
 
 <body>
@@ -42,16 +14,18 @@
       
       {% if session.get("user_id") %}
       <div class="d-flex align-items-center">
-        <div class="nav-item pe-3 text-white">{{ session.get("user_id") }}</div>
-        
-        <select id="selectorTema" class="form-select form-select-sm me-3" style="width: auto;">
-            <option value="light">Tema Claro</option>
-            <option value="dark">Tema Oscuro</option>
-        </select>
+        <div class="nav-item pe-3">
+            <select id="selectorTema" class="form-select form-select-sm">
+                <option value="cosmo">Tema Claro</option>
+                <option value="darkly">Tema Oscuro</option>
+            </select>
+        </div>
 
-        <a href="{{url_for('logout')}}" class="btn btn-secondary btn-sm" type="submit">Salir</a>
+        <div class="nav-item pe-3 text-light">{{ session.get("user_id") }}</div>
+        <a href="{{url_for('logout')}}" class="btn btn-secondary btn-sm my-2 my-sm-0" type="submit">Salir</a>
       </div>
       {% endif %}
+      
     </div>
   </nav>
 
