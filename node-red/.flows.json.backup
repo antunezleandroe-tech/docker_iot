@@ -1,0 +1,378 @@
+[
+    {
+        "id": "49841279fe0d387e",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "68827de1384c1ee7",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "13fef33718a381c0",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "inf",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "${INFLUX_SERVER}",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "16bc28fec0c72033",
+        "type": "tls-config",
+        "name": "",
+        "certType": "files",
+        "cert": "",
+        "key": "",
+        "p12": "",
+        "p12name": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": "",
+        "certEnv": "",
+        "keyEnv": "",
+        "caEnv": ""
+    },
+    {
+        "id": "e8abdc5c04dfbd13",
+        "type": "tls-config",
+        "name": "",
+        "certType": "files",
+        "cert": "",
+        "key": "",
+        "p12": "",
+        "p12name": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": "",
+        "certEnv": "",
+        "keyEnv": "",
+        "caEnv": ""
+    },
+    {
+        "id": "927a7653141e89a1",
+        "type": "mqtt-broker",
+        "name": "led",
+        "broker": "${SERVIDOR}",
+        "port": "${PUERTO_MQTTS}",
+        "tls": "e8abdc5c04dfbd13",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "fb5ec7fd7eec4cdf",
+        "type": "inject",
+        "z": "49841279fe0d387e",
+        "name": "true",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 160,
+        "wires": [
+            [
+                "85811280692bf0dc"
+            ]
+        ]
+    },
+    {
+        "id": "e77868ecb1ebee84",
+        "type": "inject",
+        "z": "49841279fe0d387e",
+        "name": "false",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "85811280692bf0dc"
+            ]
+        ]
+    },
+    {
+        "id": "85811280692bf0dc",
+        "type": "mqtt out",
+        "z": "49841279fe0d387e",
+        "name": "led",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "",
+        "x": 450,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "2b9230676afae49d",
+        "type": "mqtt in",
+        "z": "49841279fe0d387e",
+        "name": "led",
+        "topic": "prueba",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "927a7653141e89a1",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 340,
+        "wires": [
+            [
+                "52d7c95ff2b4b416"
+            ]
+        ]
+    },
+    {
+        "id": "52d7c95ff2b4b416",
+        "type": "debug",
+        "z": "49841279fe0d387e",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "0b152e0668ccff42",
+        "type": "inject",
+        "z": "49841279fe0d387e",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 460,
+        "wires": [
+            [
+                "3aa3234ddf0a8ebe"
+            ]
+        ]
+    },
+    {
+        "id": "3aa3234ddf0a8ebe",
+        "type": "function",
+        "z": "49841279fe0d387e",
+        "name": "function 1",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 460,
+        "wires": [
+            [
+                "000756ee6eeb334f"
+            ]
+        ]
+    },
+    {
+        "id": "000756ee6eeb334f",
+        "type": "mqtt out",
+        "z": "49841279fe0d387e",
+        "name": "Sensores/S1",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "",
+        "x": 530,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "78b0b17c1220994e",
+        "type": "mqtt in",
+        "z": "49841279fe0d387e",
+        "name": "Sensores/S1",
+        "topic": "",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 640,
+        "wires": [
+            [
+                "d8eac22f71613cd1",
+                "5462b75a8ff8b7ea"
+            ]
+        ]
+    },
+    {
+        "id": "d8eac22f71613cd1",
+        "type": "debug",
+        "z": "49841279fe0d387e",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 360,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "5462b75a8ff8b7ea",
+        "type": "function",
+        "z": "49841279fe0d387e",
+        "name": "function 2",
+        "func": " msg.payload = [{\n        measurement: \"mediciones\",\n        fields: msg.payload\n        }]\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 660,
+        "wires": [
+            [
+                "c99a24ec33fce9a0",
+                "8c921cf45ead35c8"
+            ]
+        ]
+    },
+    {
+        "id": "c99a24ec33fce9a0",
+        "type": "debug",
+        "z": "49841279fe0d387e",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "8c921cf45ead35c8",
+        "type": "influxdb batch",
+        "z": "49841279fe0d387e",
+        "influxdb": "13fef33718a381c0",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "iot",
+        "bucket": "sensores_remotos",
+        "x": 600,
+        "y": 660,
+        "wires": []
+    }
+]
