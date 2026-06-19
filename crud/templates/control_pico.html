@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Control Nodos RasPi Pico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Panel de Control MQTTS - RasPi Pico</h4>
+                </div>
+                <div class="card-body">
+                    {% if mensaje %}
+                        <div class="alert alert-info">{{ mensaje }}</div>
+                    {% endif %}
+
+                    <form action="{{ url_for('control_pico') }}" method="POST">
+                        
+                        <div class="mb-3">
+                            <label for="nodo" class="form-label fw-bold">Seleccione el Nodo Destinatario:</label>
+                            <select class="form-select" id="nodo" name="nodo" required>
+                                <option value="" disabled selected>Elegir nodo...</option>
+                                
+                                <option value="nodo1">Nodo 1</option>
+                                <option value="nodo2">Nodo 2</option>
+                                <option value="nodo3">Nodo 3</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Instrucción:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="instruccion" id="radioDestello" value="destello" checked onchange="toggleSetpoint(false)">
+                                <label class="form-check-label" for="radioDestello">
+                                    Comando de Destello (Toggle LED)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="instruccion" id="radioSetpoint" value="setpoint" onchange="toggleSetpoint(true)">
+                                <label class="form-check-label" for="radioSetpoint">
+                                    Modificar Setpoint
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4" id="divSetpoint" style="display: none;">
+                            <label for="valor_setpoint" class="form-label">Valor del Setpoint (°C):</label>
+                            <input type="number" step="0.1" class="form-control" id="valor_setpoint" name="valor_setpoint" placeholder="Ej: 24.5">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Enviar Comando Seguro</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSetpoint(mostrar) {
+        const divSetpoint = document.getElementById('divSetpoint');
+        const inputSetpoint = document.getElementById('valor_setpoint');
+        if (mostrar) {
+            divSetpoint.style.display = 'block';
+            inputSetpoint.required = true;
+        } else {
+            divSetpoint.style.display = 'none';
+            inputSetpoint.required = false;
+            inputSetpoint.value = ''; // Limpiar el valor si vuelve a destello
+        }
+    }
+</script>
+</body>
+</html>
